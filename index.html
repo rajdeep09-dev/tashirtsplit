@@ -79,13 +79,18 @@
     });
 
     sendBtn.addEventListener('click', () => {
-      if (leftImageBase64 && rightImageBase64) {
-        const payload = {
-          front: leftImageBase64,
-          back: rightImageBase64
-        };
-        Telegram.WebApp.sendData(JSON.stringify(payload));
-        Telegram.WebApp.close();
+  if (leftImageBase64 && rightImageBase64) {
+    const payload = {
+      front: leftImageBase64,
+      back: rightImageBase64
+    };
+    alert("✅ Sending to Telegram..."); // NEW — show confirmation popup
+    console.log("🚀 Sending payload:", payload); // show in console
+    Telegram.WebApp.sendData(JSON.stringify(payload));
+    Telegram.WebApp.close();
+  } else {
+    alert("❌ Images not ready");
+    
       }
     });
   </script>
