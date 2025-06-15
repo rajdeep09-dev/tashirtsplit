@@ -1,24 +1,37 @@
-#split_tshirt_webapp.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>T-shirt Splitter Tool</title>
+  <meta charset="UTF-8">
+  <title>Smart T-shirt Splitter</title>
   <style>
-    body { font-family: Arial; text-align: center; padding: 20px; background: #f5f5f5; }
-    canvas { margin: 10px; border: 1px solid #ccc; }
-    button { padding: 12px 24px; margin: 20px; font-size: 16px; }
+    body { font-family: Arial, sans-serif; text-align: center; background: #f0f0f0; padding: 20px; }
+    canvas { margin: 10px; border: 1px solid #ccc; max-width: 90%; }
+    button {
+      margin: 20px;
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #2a9d8f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    input[type="file"] {
+      margin-bottom: 20px;
+    }
   </style>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
+
   <h1>Smart T-shirt Splitter</h1>
-  <input type="file" id="imageUpload" accept="image/*" /><br><br>
-
+  <p>Upload a 4000x3000 T-shirt mockup</p>
+  <input type="file" id="imageUpload" accept="image/*" />
+  <br>
   <canvas id="leftCanvas" width="1832" height="2976"></canvas>
-  <canvas id="rightCanvas" width="1832" height="2976"></canvas><br>
-
-  <button id="sendBtn" disabled>Send to Telegram</button>
+  <canvas id="rightCanvas" width="1832" height="2976"></canvas>
+  <br>
+  <button id="sendBtn" disabled>📤 Send to Telegram</button>
 
   <script>
     const uploadInput = document.getElementById('imageUpload');
@@ -26,7 +39,8 @@
     const leftCanvas = document.getElementById('leftCanvas');
     const rightCanvas = document.getElementById('rightCanvas');
 
-    let leftImage, rightImage;
+    let leftImageBase64 = null;
+    let rightImageBase64 = null;
 
     uploadInput.addEventListener('change', function () {
       const file = this.files[0];
@@ -55,21 +69,22 @@
         rightCtx.clearRect(0, 0, 1832, 2976);
         rightCtx.drawImage(tempCanvas, halfWidth, 0, halfWidth, targetHeight, 0, 0, 1832, 2976);
 
-        leftImage = leftCanvas.toDataURL('image/png');
-        rightImage = rightCanvas.toDataURL('image/png');
+        leftImageBase64 = leftCanvas.toDataURL("image/png");
+        rightImageBase64 = rightCanvas.toDataURL("image/png");
 
         sendBtn.disabled = false;
       };
+
       img.src = URL.createObjectURL(file);
     });
 
     sendBtn.addEventListener('click', () => {
-      if (leftImage && rightImage) {
-        const payload = JSON.stringify({
-          front: leftImage,
-          back: rightImage
-        });
-        Telegram.WebApp.sendData(payload);
+      if (leftImageBase64 && rightImageBase64) {
+        const payload = {
+          front: leftImageBase64,
+          back: rightImageBase64
+        };
+        Telegram.WebApp.sendData(JSON.stringify(payload));
         Telegram.WebApp.close();
       }
     });
