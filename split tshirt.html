@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>T-shirt Splitter Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+      background: #f5f5f5;
+    }
+    canvas {
+      margin: 10px;
+      border: 1px solid #ccc;
+      max-width: 90%;
+    }
+    .download {
+      display: block;
+      margin: 10px;
+      padding: 10px 20px;
+      background: #333;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Smart T-shirt Splitter</h1>
+  <p>Upload a 4000x3000 T-shirt mockup to crop and split into front & back.</p>
+
+  <input type="file" id="imageUpload" accept="image/*" />
+
+  <div>
+    <canvas id="leftCanvas" width="1832" height="2976"></canvas>
+    <a id="downloadLeft" class="download" download="tshirt_front.png">Download Front</a>
+
+    <canvas id="rightCanvas" width="1832" height="2976"></canvas>
+    <a id="downloadRight" class="download" download="tshirt_back.png">Download Back</a>
+  </div>
+
+  <script>
+    const uploadInput = document.getElementById('imageUpload');
+    const leftCanvas = document.getElementById('leftCanvas');
+    const rightCanvas = document.getElementById('rightCanvas');
+    const downloadLeft = document.getElementById('downloadLeft');
+    const downloadRight = document.getElementById('downloadRight');
+
+    uploadInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+
+      const img = new Image();
+      img.onload = () => {
+        const targetWidth = 3724;
+        const targetHeight = 2976;
+        const cropX = (img.width - targetWidth) / 2;
+        const cropY = (img.height - targetHeight) / 2;
+
+        // Create intermediate canvas to crop
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = targetWidth;
+        tempCanvas.height = targetHeight;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(img, cropX, cropY, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight);
+
+        // Split into two halves
+        const halfWidth = targetWidth / 2;
+
+        // Left Half
+        const leftCtx = leftCanvas.getContext('2d');
+        leftCtx.clearRect(0, 0, 1832, 2976);
+        leftCtx.drawImage(tempCanvas, 0, 0, halfWidth, targetHeight, 0, 0, 1832, 2976);
+        downloadLeft.href = leftCanvas.toDataURL('image/png');
+
+        // Right Half
+        const rightCtx = rightCanvas.getContext('2d');
+        rightCtx.clearRect(0, 0, 1832, 2976);
+        rightCtx.drawImage(tempCanvas, halfWidth, 0, halfWidth, targetHeight, 0, 0, 1832, 2976);
+        downloadRight.href = rightCanvas.toDataURL('image/png');
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  </script>
+
+</body>
+</html>
